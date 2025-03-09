@@ -3,6 +3,7 @@ package com.example.todolist
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.todolist.model.TodoItemModel
 import com.example.todolist.repo.PreferencesRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,10 +19,10 @@ class PreferencesViewModel(application: Application) : AndroidViewModel(applicat
         false
     )
 
-    val todoList: StateFlow<List<String>> = repository.todoList.stateIn(
+    val todoList: StateFlow<List<TodoItemModel>> = repository.todoList.stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
-        emptyList<String>()
+        emptyList()
     )
 
     fun toggleTheme(isDark: Boolean) {
@@ -30,9 +31,22 @@ class PreferencesViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
-    fun addItem(newItem: String){
+    fun addTodoItem(newItem: TodoItemModel) {
         viewModelScope.launch {
             repository.addTodoItem(newItem)
         }
     }
+
+    fun updateTodoItem(updatedItem: TodoItemModel) {
+        viewModelScope.launch {
+            repository.updateTodoItem(updatedItem)
+        }
+    }
+
+    fun removeTodoItem(itemId: String) {
+        viewModelScope.launch {
+            repository.removeTodoItem(itemId)
+        }
+    }
+
 }

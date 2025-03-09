@@ -24,23 +24,26 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.todolist.model.TodoItemModel
 
 @Composable
 fun TemplateHome(viewModel: PreferencesViewModel = viewModel(), navController: NavController){
         val isDarkMode by remember { viewModel.isDarkMode }.collectAsState()
         val todoList by remember { viewModel.todoList }.collectAsState()
+
+        val todoItems = todoList.filter { !it.isDone }
+        val doneItems = todoList.filter { it.isDone }
 
         Scaffold(
             floatingActionButton = {
@@ -79,8 +82,14 @@ fun TemplateHome(viewModel: PreferencesViewModel = viewModel(), navController: N
                     }
                 }
 
-                todoList.map{ name ->
-                    item{TodoItem(label = name)}
+                todoItems.map{ todoItem ->
+                    item{TodoItem(todoItem, onClickCheck = { item ->
+                        viewModel.updateTodoItem(item)
+                    })}
+                }
+
+                item{
+                    EmptyListMessage(todoItems.isEmpty(), "Add an item to the list")
                 }
 
                 item{
@@ -93,8 +102,14 @@ fun TemplateHome(viewModel: PreferencesViewModel = viewModel(), navController: N
                     }
                 }
 
-                items(10) { index ->
-                    TodoItem("item number $index")
+                doneItems.map{ todoItem ->
+                    item{TodoItem(todoItem, onClickCheck = { item ->
+                        viewModel.updateTodoItem(item)
+                    })}
+                }
+
+                item{
+                    EmptyListMessage(doneItems.isEmpty(), "Do something")
                 }
             }
 
@@ -129,16 +144,26 @@ fun Subtitle(label: String){
 }
 
 @Composable
-fun TodoItem(label: String){
-    var checked by remember { mutableStateOf(false) }
-
+fun TodoItem(item: TodoItemModel, onClickCheck: (item:TodoItemModel) -> Unit){
     Row(verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { checked = !checked }
+            .clickable {
+                onClickCheck(item)
+            }
     ) {
-        Checkbox(checked = checked, onCheckedChange = { checked = it } )
-        Text(label, style =  TextStyle(textDecoration = if(checked) TextDecoration.LineThrough else TextDecoration.None))
+        Checkbox(checked = item.isDone, onCheckedChange = {
+            onClickCheck(item)
+        })
+        Text(item.label, style =  TextStyle(textDecoration = if(item.isDone) TextDecoration.LineThrough else TextDecoration.None))
     }
 }
 
+@Composable
+fun EmptyListMessage(isEmpty: Boolean, message: String){
+    Row(horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(if(isEmpty) message else "", style = TextStyle(fontStyle = FontStyle.Italic, fontSize = 14.sp))
+    }
+}

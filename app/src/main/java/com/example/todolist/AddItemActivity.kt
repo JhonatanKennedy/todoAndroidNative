@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.todolist.model.TodoItemModel
 
 @Composable
 fun TemplateAddItem(navController: NavController, viewModel: PreferencesViewModel = viewModel(),){
@@ -41,8 +42,9 @@ fun TemplateAddItem(navController: NavController, viewModel: PreferencesViewMode
             .padding(paddingValues)
             .fillMaxSize()
         ){
-            AddItemContainer(onAddItem = { item ->
-                viewModel.addItem(item)
+            AddItemContainer(onAddItem = { label ->
+                val newItem = TodoItemModel(label = label)
+                viewModel.addTodoItem(newItem)
                 navController.navigate("home")
             })
         }
