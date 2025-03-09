@@ -18,9 +18,21 @@ class PreferencesViewModel(application: Application) : AndroidViewModel(applicat
         false
     )
 
+    val todoList: StateFlow<List<String>> = repository.todoList.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        emptyList<String>()
+    )
+
     fun toggleTheme(isDark: Boolean) {
         viewModelScope.launch {
             repository.updateDarkMode(isDark)
+        }
+    }
+
+    fun addItem(newItem: String){
+        viewModelScope.launch {
+            repository.addTodoItem(newItem)
         }
     }
 }

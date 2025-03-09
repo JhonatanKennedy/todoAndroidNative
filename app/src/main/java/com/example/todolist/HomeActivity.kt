@@ -39,8 +39,8 @@ import androidx.navigation.NavController
 
 @Composable
 fun TemplateHome(viewModel: PreferencesViewModel = viewModel(), navController: NavController){
-        val isDarkMode by viewModel.isDarkMode.collectAsState()
-
+        val isDarkMode by remember { viewModel.isDarkMode }.collectAsState()
+        val todoList by remember { viewModel.todoList }.collectAsState()
 
         Scaffold(
             floatingActionButton = {
@@ -79,8 +79,8 @@ fun TemplateHome(viewModel: PreferencesViewModel = viewModel(), navController: N
                     }
                 }
 
-                items(10) { index ->
-                    TodoItem("item number $index")
+                todoList.map{ name ->
+                    item{TodoItem(label = name)}
                 }
 
                 item{

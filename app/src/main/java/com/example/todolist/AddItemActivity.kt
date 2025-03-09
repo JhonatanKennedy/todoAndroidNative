@@ -27,21 +27,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 
 @Composable
-fun TemplateAddItem(navController: NavController){
+fun TemplateAddItem(navController: NavController, viewModel: PreferencesViewModel = viewModel(),){
     Scaffold (
         topBar = {
             Header(goBackClick = { navController.navigate("home") })
-
         }
     ) { paddingValues ->
         Column(modifier = Modifier
             .padding(paddingValues)
             .fillMaxSize()
         ){
-            AddItemContainer()
+            AddItemContainer(onAddItem = { item ->
+                viewModel.addItem(item)
+                navController.navigate("home")
+            })
         }
     }
 }
@@ -70,7 +73,7 @@ fun Header(goBackClick: () -> Unit){
 }
 
 @Composable
-fun AddItemContainer(){
+fun AddItemContainer(onAddItem: (newItem: String) -> Unit){
     var text by remember { mutableStateOf("") }
 
     Row(
@@ -83,7 +86,9 @@ fun AddItemContainer(){
             onValueChange = { text = it },
             label = { Text("Add a todo item") }
         )
-        IconButton( onClick = {} ) {
+        IconButton( onClick = {
+            onAddItem(text)
+        } ) {
             Icon(
                 Icons.Filled.AddCircle,
                 contentDescription = "Localized description",
