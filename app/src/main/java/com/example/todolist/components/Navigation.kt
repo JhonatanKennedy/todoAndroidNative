@@ -18,9 +18,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.todolist.TemplateAddItem
-import com.example.todolist.TemplateHistory
-import com.example.todolist.TemplateHome
+import com.example.todolist.templates.TemplateAddItem
+import com.example.todolist.templates.TemplateHistory
+import com.example.todolist.templates.TemplateHome
 
 
 @Composable
