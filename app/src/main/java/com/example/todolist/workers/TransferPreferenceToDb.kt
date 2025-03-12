@@ -11,15 +11,20 @@ import kotlinx.coroutines.flow.first
 
 class TransferPreferenceToDbWorker(
     private val context: Context,
-    workerParams: WorkerParameters
+    workerParams: WorkerParameters,
 ) : CoroutineWorker(context, workerParams) {
     private val dateUtils = DateUtils()
-    private val dbRepository = DBRepository(context)
-    private val preferencesRepository = PreferencesRepository(context)
+    private val dbRepository = DBRepository.getInstance(context)
+    private val preferencesRepository = PreferencesRepository.getInstance(context)
 
+    //TODO ajustar o worker pra só funcionar na meia noite
     override suspend fun doWork(): Result {
         try {
             val todoItems = preferencesRepository.todoList.first()
+
+            if(todoItems.isEmpty()){
+                return Result.success()
+            }
 
             todoItems.forEach { item ->
                 val entity = ToDoItemEntity(
@@ -35,7 +40,7 @@ class TransferPreferenceToDbWorker(
 
             return Result.success()
         } catch (e: Exception) {
-            return Result.retry()
+            return Result.failure()
         }
     }
 }

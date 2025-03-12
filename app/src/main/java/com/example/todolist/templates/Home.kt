@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
@@ -24,22 +24,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.todolist.components.Subtitle
 import com.example.todolist.components.Title
 import com.example.todolist.components.TodoItemComponent
+import com.example.todolist.components.EmptyListMessage
 import com.example.todolist.viewModel.PreferencesViewModel
 
 @Composable
 fun TemplateHome(preferencesViewModel: PreferencesViewModel = viewModel(), navController: NavController){
         val isDarkMode by remember { preferencesViewModel.isDarkMode }.collectAsState()
-
-        // todo ver o que ta acontecendo que no first render nao pega
         val todoList by remember { preferencesViewModel.todoList }.collectAsState()
 
         val todoItems = todoList.filter { !it.isDone }
@@ -82,12 +78,11 @@ fun TemplateHome(preferencesViewModel: PreferencesViewModel = viewModel(), navCo
                     }
                 }
 
-                itemsIndexed(todoItems, key = { index, _ -> todoItems[index].id }) { _, item ->
+                items(todoItems, key = { it.id }) { item ->
                     TodoItemComponent(item, onClickCheck = { toDoItem ->
                         preferencesViewModel.updateTodoItem(toDoItem)
                     })
                 }
-
                 item{
                     EmptyListMessage(todoItems.isEmpty(), "Add an item to the list")
                 }
@@ -102,7 +97,7 @@ fun TemplateHome(preferencesViewModel: PreferencesViewModel = viewModel(), navCo
                     }
                 }
 
-                itemsIndexed(doneItems, key = { index, _ -> doneItems[index].id }) { _, item ->
+                items(doneItems, key = { it.id }) { item ->
                     TodoItemComponent(item, onClickCheck = { toDoItem ->
                         preferencesViewModel.updateTodoItem(toDoItem)
                     })
@@ -113,13 +108,4 @@ fun TemplateHome(preferencesViewModel: PreferencesViewModel = viewModel(), navCo
                 }
             }
         }
-}
-
-@Composable
-private fun EmptyListMessage(isEmpty: Boolean, message: String){
-    Row(horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(if(isEmpty) message else "", style = TextStyle(fontStyle = FontStyle.Italic, fontSize = 14.sp))
-    }
 }

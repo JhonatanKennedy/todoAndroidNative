@@ -10,21 +10,33 @@ import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+class PreferencesRepository private constructor(context: Context) {
+    private val appContext: Context = context.applicationContext
 
-class PreferencesRepository(private val context: Context) {
+    companion object {
+        @Volatile
+        private var instance: PreferencesRepository? = null
+
+        fun getInstance(context: Context): PreferencesRepository {
+            return instance ?: synchronized(this) {
+                instance ?: PreferencesRepository(context.applicationContext).also { instance = it }
+            }
+        }
+    }
+
     private val gson = Gson()
 
-    private val THEME_KEY = booleanPreferencesKey("dark_mode")
-    private val TODO_KEY = stringSetPreferencesKey("todo_list")
+    private val themeKey = booleanPreferencesKey("dark_mode")
+    private val todoKey = stringSetPreferencesKey("todo_list")
 
     val isDarkMode: Flow<Boolean> = context.dataStore.data
         .map { preferences ->
-            preferences[THEME_KEY] ?: false
+            preferences[themeKey] ?: false
         }
 
     val todoList: Flow<List<TodoItemModel>> = context.dataStore.data
         .map { preferences ->
-            val todoListJson = preferences[TODO_KEY] ?: emptySet()
+            val todoListJson = preferences[todoKey] ?: emptySet()
             todoListJson.map { json ->
                 gson.fromJson(json, TodoItemModel::class.java)
             }
@@ -32,25 +44,24 @@ class PreferencesRepository(private val context: Context) {
 
 
     suspend fun updateDarkMode(isDark: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[THEME_KEY] = isDark
+        appContext.dataStore.edit { preferences ->
+            preferences[themeKey] = isDark
         }
     }
 
-
     //List
     suspend fun addTodoItem(newItem: TodoItemModel) {
-        context.dataStore.edit { preferences ->
-            val currentList = preferences[TODO_KEY]?.toMutableSet() ?: mutableSetOf()
+        appContext.dataStore.edit { preferences ->
+            val currentList = preferences[todoKey]?.toMutableSet() ?: mutableSetOf()
             val newItemJson = gson.toJson(newItem)
             currentList.add(newItemJson)
-            preferences[TODO_KEY] = currentList
+            preferences[todoKey] = currentList
         }
     }
 
     suspend fun updateTodoItem(updatedItem: TodoItemModel) {
-        context.dataStore.edit { preferences ->
-            val currentList = preferences[TODO_KEY]?.toMutableSet() ?: mutableSetOf()
+        appContext.dataStore.edit { preferences ->
+            val currentList = preferences[todoKey]?.toMutableSet() ?: mutableSetOf()
             val updatedList = currentList.map { json ->
                 gson.fromJson(json, TodoItemModel::class.java)
             }.map { item ->
@@ -60,25 +71,25 @@ class PreferencesRepository(private val context: Context) {
                     item
                 }
             }
-            preferences[TODO_KEY] = updatedList.map { gson.toJson(it) }.toSet()
+            preferences[todoKey] = updatedList.map { gson.toJson(it) }.toSet()
         }
     }
 
     suspend fun removeTodoItem(itemId: String) {
-        context.dataStore.edit { preferences ->
-            val currentList = preferences[TODO_KEY]?.toMutableSet() ?: mutableSetOf()
+        appContext.dataStore.edit { preferences ->
+            val currentList = preferences[todoKey]?.toMutableSet() ?: mutableSetOf()
             val updatedList = currentList.map { json ->
                 gson.fromJson(json, TodoItemModel::class.java)
             }.filter { item ->
                 item.id != itemId
             }
-            preferences[TODO_KEY] = updatedList.map { gson.toJson(it) }.toSet()
+            preferences[todoKey] = updatedList.map { gson.toJson(it) }.toSet()
         }
     }
 
     suspend fun clearTodoList() {
-        context.dataStore.edit { preferences ->
-            preferences.remove(TODO_KEY)
+        appContext.dataStore.edit { preferences ->
+            preferences.remove(todoKey)
         }
     }
 }

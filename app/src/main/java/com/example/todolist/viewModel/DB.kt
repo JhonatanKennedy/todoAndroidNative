@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.flow
 
 
 class DBViewModel(application: Application): AndroidViewModel(application){
-    private val repository = DBRepository(application)
+    private val repository = DBRepository.getInstance(application)
     private val dateUtils = DateUtils()
 
     fun getItemsGroupedByDay(): Flow<Map<String, List<TodoItemModel>>> = flow {
@@ -19,12 +19,14 @@ class DBViewModel(application: Application): AndroidViewModel(application){
 
         last7Days.forEach { date ->
             repository.getTodoItemsByDate(date).collect { items ->
-                val currentDate = dateUtils.fromTimestampToString(date)
-                groupedItems[currentDate] = items.map{ item->
-                    TodoItemModel(id = item.id, label = item.label, isDone = item.isDone)
+                if (items.isNotEmpty()) {
+                    val currentDate = dateUtils.fromTimestampToString(date)
+                    groupedItems[currentDate] = items.map{ item->
+                        TodoItemModel(id = item.id, label = item.label, isDone = item.isDone)
+                    }
+                    emit(groupedItems)
                 }
-                emit(groupedItems)
-                println(groupedItems)
+
             }
         }
     }

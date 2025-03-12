@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class PreferencesViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = PreferencesRepository(application)
+    private val repository = PreferencesRepository.getInstance(application)
 
     val isDarkMode: StateFlow<Boolean> = repository.isDarkMode.stateIn(
         viewModelScope,
@@ -47,12 +47,6 @@ class PreferencesViewModel(application: Application) : AndroidViewModel(applicat
     fun removeTodoItem(itemId: String) {
         viewModelScope.launch {
             repository.removeTodoItem(itemId)
-        }
-    }
-
-    fun clearTodoList() {
-        viewModelScope.launch {
-            repository.clearTodoList()
         }
     }
 }

@@ -6,8 +6,19 @@ import com.example.todolist.db.ToDoItemDB
 import com.example.todolist.db.entity.ToDoItemEntity
 import kotlinx.coroutines.flow.Flow
 
-class DBRepository(private val context: Context){
-    val db = Room.databaseBuilder(
+class DBRepository private constructor(context: Context){
+    companion object {
+        @Volatile
+        private var instance: DBRepository? = null
+
+        fun getInstance(context: Context): DBRepository {
+            return instance ?: synchronized(this) {
+                instance ?: DBRepository(context.applicationContext).also { instance = it }
+            }
+        }
+    }
+
+    private val db = Room.databaseBuilder(
         context.applicationContext,
         ToDoItemDB::class.java, "todo_item_db"
     ).build()

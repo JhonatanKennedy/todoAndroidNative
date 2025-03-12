@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.todolist.components.EmptyListMessage
 import com.example.todolist.components.ExpandableListItem
 import com.example.todolist.components.Subtitle
 import com.example.todolist.components.Title
@@ -58,6 +59,10 @@ fun TemplateHistory(dbViewModel: DBViewModel = viewModel()){
                     isExpanded = expandedStates.getOrElse(index) { false },
                     onExpandedChange = { expandedStates[index] = it }
                 )
+            }
+
+            item{
+                EmptyListMessage(isEmpty = groupedItems.isEmpty(), "Nothing to see here")
             }
         }
     }
