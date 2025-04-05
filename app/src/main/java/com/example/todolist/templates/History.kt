@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+
 import com.example.todolist.components.EmptyListMessage
 import com.example.todolist.components.ExpandableListItem
 import com.example.todolist.components.Subtitle
@@ -25,7 +26,7 @@ import com.example.todolist.viewModel.DBViewModel
 
 @Composable
 fun TemplateHistory(dbViewModel: DBViewModel = viewModel()){
-    val groupedItems by dbViewModel.getItemsGroupedByDay().collectAsState(initial = emptyMap())
+    val groupedItems by dbViewModel.groupedItems.collectAsState()
 
     val expandedStates = remember { mutableStateListOf<Boolean>() }
     val listState = rememberLazyListState()
