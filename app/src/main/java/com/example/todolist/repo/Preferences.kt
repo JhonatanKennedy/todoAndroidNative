@@ -43,6 +43,7 @@ class PreferencesRepository private constructor(context: Context) {
         }
 
 
+    // Theme
     suspend fun updateDarkMode(isDark: Boolean) {
         appContext.dataStore.edit { preferences ->
             preferences[themeKey] = isDark

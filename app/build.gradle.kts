@@ -71,4 +71,5 @@ dependencies {
     kapt("androidx.room:room-compiler:$room_version")
 
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("com.android.volley:volley:1.2.1")
 }
