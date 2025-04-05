@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 
 class QuoteViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _quote = MutableStateFlow("Carregando frase do dia...")
+    private val _quote = MutableStateFlow("Loading quote of the day...")
     val quote = _quote.asStateFlow()
 
     private val repository = QuoteRepository(application)
