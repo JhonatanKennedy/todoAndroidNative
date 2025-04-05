@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.todolist.components.Title
 import com.example.todolist.viewModel.QuoteViewModel
 
 @Composable
@@ -27,7 +28,7 @@ fun QuoteTemplate(viewModel: QuoteViewModel = viewModel ()){
             modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Quote of the day", style = MaterialTheme.typography.headlineSmall)
+            Title("Quote of the day")
             Spacer(modifier = Modifier.height(8.dp))
             Text(quote, style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
         }
