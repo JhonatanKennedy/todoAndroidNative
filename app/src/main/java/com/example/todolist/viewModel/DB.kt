@@ -8,6 +8,7 @@ import com.example.todolist.repo.DBRepository
 import com.example.todolist.utils.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 
@@ -28,20 +29,20 @@ class DBViewModel(application: Application): AndroidViewModel(application){
             val last7Days = dateUtils.getLast7DaysTimestamps()
 
             last7Days.forEach { date ->
-                repository.getTodoItemsByDate(date).collect { items ->
-                    if (items.isNotEmpty()) {
-                        val currentDate = dateUtils.fromTimestampToString(date)
-                        groupedItemsMap[currentDate] = items.map { item ->
-                            TodoItemModel(
-                                id = item.id,
-                                label = item.label,
-                                isDone = item.isDone
-                            )
-                        }
-                        _groupedItems.value = groupedItemsMap
+                val items = repository.getTodoItemsByDate(date).first()
+                if(items.isNotEmpty()){
+                    val currentDate = dateUtils.fromTimestampToString(date)
+                    groupedItemsMap[currentDate] = items.map { item ->
+                        TodoItemModel(
+                            id = item.id,
+                            label = item.label,
+                            isDone = item.isDone
+                        )
                     }
                 }
             }
+
+            _groupedItems.value = groupedItemsMap
         }
     }
 }
