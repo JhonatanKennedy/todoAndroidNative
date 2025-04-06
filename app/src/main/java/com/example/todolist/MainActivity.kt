@@ -11,14 +11,14 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.OutOfQuotaPolicy
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.todolist.components.Navigation
 import com.example.todolist.ui.theme.ToDoListTheme
 import com.example.todolist.viewModel.PreferencesViewModel
 import com.example.todolist.workers.TransferPreferenceToDbWorker
+import java.util.concurrent.TimeUnit
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -27,14 +27,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val workRequest = OneTimeWorkRequestBuilder<TransferPreferenceToDbWorker>()
-            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            .build()
+        val periodicRequest = PeriodicWorkRequestBuilder<TransferPreferenceToDbWorker>(
+            24, TimeUnit.HOURS
+        ).build()
 
-        WorkManager.getInstance(this).enqueueUniqueWork(
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "PreferencesToDatabaseWorker",
-            ExistingWorkPolicy.REPLACE,
-            workRequest
+            ExistingPeriodicWorkPolicy.UPDATE,
+            periodicRequest
         )
 
         setContent {
@@ -46,5 +46,5 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
 }
+

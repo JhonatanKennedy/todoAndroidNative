@@ -1,10 +1,10 @@
 package com.example.todolist.workers
 
 import android.content.Context
-import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.example.todolist.db.entity.ToDoItemEntity
@@ -12,9 +12,6 @@ import com.example.todolist.repo.DBRepository
 import com.example.todolist.repo.PreferencesRepository
 import com.example.todolist.utils.DateUtils
 import kotlinx.coroutines.flow.first
-import java.util.Calendar
-import java.util.concurrent.TimeUnit
-
 
 class TransferPreferenceToDbWorker(
     private val context: Context,
@@ -44,44 +41,22 @@ class TransferPreferenceToDbWorker(
 
             preferencesRepository.clearTodoList()
 
-            scheduleWorkerForNight()
             return Result.success()
         } catch (e: Exception) {
-            scheduleWorkerForNight()
             return Result.failure()
         }
     }
+}
 
-    private fun scheduleWorkerForNight() {
-        val now = Calendar.getInstance()
+fun workerTestFunction(context: Context) {
+    val workRequest = OneTimeWorkRequestBuilder<TransferPreferenceToDbWorker>()
+        .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+        .build()
 
-        val targetTime = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 23)
-            set(Calendar.MINUTE, 59)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
+    WorkManager.getInstance(context).enqueueUniqueWork(
+        "PreferencesToDatabaseWorker",
+        ExistingWorkPolicy.REPLACE,
+        workRequest
+    )
 
-            // Se a hora atual já passou de 23:59, agendar para amanhã
-            if (before(now)) {
-                add(Calendar.DAY_OF_MONTH, 1)
-            }
-        }
-
-        val delayInMillis = targetTime.timeInMillis - now.timeInMillis
-
-        val constraints = Constraints.Builder()
-            .setRequiresBatteryNotLow(false)
-            .build()
-
-        val request = OneTimeWorkRequestBuilder<TransferPreferenceToDbWorker>()
-            .setInitialDelay(delayInMillis, TimeUnit.MILLISECONDS)
-            .setConstraints(constraints)
-            .build()
-
-        WorkManager.getInstance(context).enqueueUniqueWork(
-            "NightlyWorker",
-            ExistingWorkPolicy.REPLACE,
-            request
-        )
-    }
 }
